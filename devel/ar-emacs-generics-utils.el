@@ -208,7 +208,7 @@
    ))
 
 ;; comment can't use re-forms
-(defconst ar-navigate-forms
+(defconst ar-emacs-generics-forms
   (list
    "block"
    "block-or-clause"
@@ -277,7 +277,7 @@
    ))
 
 ;; comment, section not suitable here
-(defconst ar-navigate-test-forms
+(defconst ar-emacs-generics-test-forms
   (list
    "block"
    "block-or-clause"
@@ -1898,7 +1898,7 @@ the default\"
   (interactive)
     (set-buffer (get-buffer-create "mark-bol.el"))
     (erase-buffer)
-    (dolist (ele ar-navigate-forms)
+    (dolist (ele ar-emacs-generics-forms)
       (insert (concat "
 \(defun ar-mark-" ele "-bol ()
   \"Mark " ele ", take beginning of line positions.
@@ -1988,7 +1988,7 @@ Return beginning of `" ele "' if successful, nil otherwise"))
        (progn (beginning-of-line)(point))))\n"))))
 
 (defun ar-write-backward-forms ()
-  "Uses ar-backward-forms, not `ar-navigate-forms'.
+  "Uses ar-backward-forms, not `ar-emacs-generics-forms'.
 
 Use backward-statement for `top-level', also bol-forms don't make sense here"
   (interactive)
@@ -2224,7 +2224,7 @@ print(\\\"I'm the ar-just-two-split-dedicated-lp-1361531-" elt "-test\\\")\""))
   (switch-to-buffer (current-buffer))
   (insert ";;; ar-ert-beginning-tests.el --- Just some more tests \n -*- lexical-binding: t; -*-")
   (insert arkopf)
-  (dolist (ele ar-navigate-forms)
+  (dolist (ele ar-emacs-generics-forms)
     (insert (concat "
 \(ert-deftest ar-ert-beginning-of-" ele "-test ()
   (ar-test-with-temp-buffer

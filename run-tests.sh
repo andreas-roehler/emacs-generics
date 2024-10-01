@@ -18,6 +18,8 @@
 
 # Code:
 
+
+
 if [ $1 == en ]; then
     export EMACS=$(echo $(alias $1) | sed "s,alias [^~]*.\([^ ]*\).*,$HOME\1,g")
 elif [ $1 == e25 ]; then
@@ -125,34 +127,20 @@ entfernt () {
 
 if [ $IFLOCAL -eq 0 ]; then
 
-    PCO=$HOME/arbeit/emacs-lisp/python-modes/components-python-mode
-    WCO=$HOME/werkstatt/thingatpt-utils-core
-    ATPT=$HOME/werkstatt/thing-at-point-utils
-    WNUM=$HOME/werkstatt/numbers-at-point
-
-    # better from ar-generics to python-components
-    # set "" ${PCO}/python-components-forward-forms.el ${PCO}/python-components-backward-forms.el ${PCO}/python-components-start-Zf98zM.el
-
-    # for i in $*; do
-    #     # sed 's,python-components,ar-navigate,g' < ${i##*/}
-    #     # echo "in Arbeit: $ERG" 
-    #     cat $i | sed 's,py-,ar-,g;s,python-components,ar-navigate,g;s,gitlab\.com/python-mode-devs,github.com/andreas-roehler/emacs-generics,g' > ${i##*/}
-
-    # done
-
-    # ls python-components-* | sed 's,python-components-\(.*\),mv python-components-\1 ar-navigate-\1,g'  | sh
-
-
-    # cat ${PCO}/python-components-forward-forms.el | sed 's,py-,ar-,g;s,python-components,ar-navigate,g' > ar-navigate-forward-forms.el
+    # von python-compenents importieren
+    PCO=$HOME/arbeit/emacs-lisp/python-modes/components-python-mode    
+    # cat ${PCO}/python-components-forward-forms.el |  sed 's,py-,ar-,g;s,python-components,ar-navigate,g' > ar-navigate-forward-forms.el
     # cat ${PCO}/python-components-backward-forms.el | sed 's,py-,ar-,g;s,python-components,ar-navigate,g' > ar-navigate-backward-forms.el
-    cp -pu ${WCO}/ar-subr.el .
-    cp -pu ${WCO}/ar-beg-end.el .
-    cp -pu ${WCO}/ar-thingatpt-basic-definitions.el .
-    cp -pu ${WCO}/ar-thingatpt-utils-core.el .
-    cp -pu ${WCO}/test/ar-thingatpt-setup-tests.el ./test/
-    cp -pu ${ATPT}/ar-thingatpt-utils.el .
-    cp -pu ${ATPT}/ar-sexp.el .
-    cp -pu ${WNUM}/ar-numbers-at-point.el .
+    # cat ${PCO}/python-components-start-Zf98zM.el | sed 's,gitlab.com/python-mode-devs,github.com/andreas-roehler/emacs-generics,g;s,py-,ar-,g;s,python-components,ar-emacs-generics,g' > ar-emacs-generics-start-Zf98zM.el
+
+    # cp -pu ${WCO}/ar-subr.el .
+    # cp -pu ${WCO}/ar-beg-end.el .
+    # cp -pu ${WCO}/ar-thingatpt-basic-definitions.el .
+    # cp -pu ${WCO}/ar-thingatpt-utils-core.el .
+    # cp -pu ${WCO}/test/ar-thingatpt-setup-tests.el ./test/
+    # cp -pu ${ATPT}/ar-thingatpt-utils.el .
+    # cp -pu ${ATPT}/ar-sexp.el .
+    # cp -pu ${WNUM}/ar-numbers-at-point.el .
 
     while getopts 123456789abcdefghijklmnopqrstuvx option
     do
