@@ -61,9 +61,10 @@ SETUP=${PWD}/test/ar-generics-setup-tests.el
 
 FILE1=${PWD}/ar-subr.el
 FILE2=${PWD}/ar-beg-end.el
+FILE3=${PWD}/ar-navigate.el
 
-
-TEST1=test/ar-ert-python-navigation-tests.el
+TEST1=test/ar-emacs-generics-elisp-tests.el
+TEST2=test/ar-ert-python-navigation-tests.el
 
 if [ -s emacs24 ]; then
     EMACS=emacs24
@@ -89,8 +90,10 @@ h1 () {
 --eval "(message (emacs-version))" \
 -load $FILE1 \
 -load $FILE2 \
+-load $FILE3 \
 -load $SETUP \
 \
+-load $TEST1 \
 -f ert-run-tests-batch-and-exit
 }
 
@@ -99,10 +102,6 @@ hier () {
 --eval "(message (emacs-version))" \
 -load $FILE1 \
 -load $FILE2 \
--load $FILE3 \
--load $FILE4 \
--load $FILE5 \
--load $FILE6 \
 -load $SETUP \
 \
 -load $TEST1 \

@@ -1,9 +1,10 @@
-;;; ar-generics-setup-tests.el --- operator-mode tests  -*- lexical-binding: t; -*-
+;;; ar-generics-setup-tests.el --- Provide needed forms -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2018-2024 Andreas Röhler
+;; Copyright (C) 2015-2024  Andreas Röhler
 
 ;; Author: Andreas Röhler <andreas.roehler@easy-emacs.de>
-;; Keywords: convenience
+
+;; Keywords: lisp
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -16,15 +17,56 @@
 ;; GNU General Public License for more details.
 
 ;; You should have received a copy of the GNU General Public License
-;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
 
-;;
-
 ;;; Code:
 
-(defmacro ar-generics-test (contents mode debug &rest body)
+(defvar ar-debug-p nil
+  "Avoid error")
+
+;; (setq ar-debug-p t)
+
+(defcustom ar-debug-p nil
+  ""
+  :type 'boolean
+  :group 'werkstatt)
+
+(defun ar-toggle-debug-p ()
+  "Toggle `ar-debug-p'. "
+  (interactive)
+  (setq ar-debug-p (not ar-debug-p))
+  (message "ar-debug-p: %s"  ar-debug-p))
+
+(defmacro ar-test-with-temp-buffer (contents &rest body)
+  "Create temp buffer inserting CONTENTS.
+BODY is code to be executed within the temp buffer.  Point is
+ at the end of buffer."
+  (declare (indent 2) (debug t))
+  `(with-temp-buffer
+     (let (hs-minor-mode)
+       (insert ,contents)
+       (when ar-debug-p
+	 (switch-to-buffer (current-buffer)))
+       (font-lock-fontify-region (point-min) (point-max))
+       ,@body)))
+
+(defmacro ar-test-with-temp-buffer-point-min (contents &rest body)
+  "Create temp buffer inserting CONTENTS.
+BODY is code to be executed within the temp buffer.  Point is
+ at the end of buffer."
+  (declare (indent 2) (debug t))
+  `(with-temp-buffer
+     (let (hs-minor-mode)
+       (insert ,contents)
+       (goto-char (point-min))
+       (when ar-debug-p
+	 (switch-to-buffer (current-buffer)))
+       (font-lock-fontify-region (point-min) (point-max))
+       ,@body)))
+
+(defmacro ar-test (contents mode verbose &rest body)
   "Create temp buffer inserting CONTENTS.
 
 BODY is code to be executed within the temp buffer "
@@ -33,15 +75,13 @@ BODY is code to be executed within the temp buffer "
      (let (hs-minor-mode)
        (insert ,contents)
        (funcall ,mode)
-       (when ,debug
+       (when ,verbose
 	 (switch-to-buffer (current-buffer))
-	 (save-excursion (font-lock-fontify-region (point-min)(point-max)))
-       ,@body))
-  ;; (sit-for 0.1)
-  ))
+	 (font-lock-fontify-region (point-min) (point-max)))
+       ,@body)))
 
-(defmacro ar-generics-test-point-min (contents mode debug &rest body)
-  "Create temp buffer inserting CONTENTS.
+(defmacro ar-test-point-min (contents mode verbose &rest body)
+  "Create temp buffer in `python-mode' inserting CONTENTS.
 BODY is code to be executed within the temp buffer.  Point is
  at the beginning of buffer."
   (declare (indent 1) (debug t))
@@ -50,12 +90,138 @@ BODY is code to be executed within the temp buffer.  Point is
        (funcall ,mode)
        (insert ,contents)
        (goto-char (point-min))
-       (when ,debug
+       (when ,verbose
 	 (switch-to-buffer (current-buffer))
-	 (save-excursion (font-lock-fontify-region (point-min)(point-max))))
+	 (font-lock-fontify-region (point-min) (point-max)))
        ,@body)))
 
-;; (ert-simulate-command (cons self-insert-command))
+(defmacro ar-test-with-elisp-buffer (contents &rest body)
+  "Create temp buffer in `emacs-lisp-mode' inserting CONTENTS.
+BODY is code to be executed within the temp buffer.  Point is
+ at the end of buffer."
+  (declare (indent 1) (debug t))
+  `(with-temp-buffer
+     (let (hs-minor-mode)
+       (emacs-lisp-mode)
+       (insert ,contents)
+       (when ar-debug-p
+	 (switch-to-buffer (current-buffer)))
+       (font-lock-fontify-region (point-min) (point-max))
+       ,@body)))
+
+(defmacro ar-test-with-elisp-buffer-point-min (contents &rest body)
+  "Create temp buffer inserting CONTENTS.
+BODY is code to be executed within the temp buffer.  Point is
+ at the end of buffer."
+  (declare (indent 2) (debug t))
+  `(with-temp-buffer
+     (let (hs-minor-mode)
+       (insert ,contents)
+       (emacs-lisp-mode)
+       (goto-char (point-min))
+       (when ar-debug-p
+	 (switch-to-buffer (current-buffer)))
+       (font-lock-fontify-region (point-min) (point-max))
+       ,@body)))
+
+(defmacro ar-test-with-python-buffer-point-min (contents &rest body)
+  "Create temp buffer in `python-mode' inserting CONTENTS.
+BODY is code to be executed within the temp buffer.  Point is
+ at the beginning of buffer."
+  (declare (indent 1) (debug t))
+  `(with-temp-buffer
+     ;; requires python.el
+     ;; (and (featurep 'semantic) (unload-feature 'semantic))
+     ;; (and (featurep 'python) (unload-feature 'python))
+     (let (hs-minor-mode py--imenu-create-index-p)
+       (insert ,contents)
+       (python-mode)
+       (goto-char (point-min))
+       ;; (message "(current-buffer): %s" (current-buffer))
+       (when ar-debug-p (switch-to-buffer (current-buffer))
+	     (font-lock-fontify-region (point-min) (point-max)))
+       ,@body)
+     ))
+
+(defmacro ar-test-with-python-buffer (contents &rest body)
+  "Create temp buffer in `python-mode' inserting CONTENTS.
+BODY is code to be executed within the temp buffer.  Point is
+ at the end of buffer."
+  (declare (indent 1) (debug t))
+  `(with-temp-buffer
+     ;; (and (featurep 'python) (unload-feature 'python))
+     (let (hs-minor-mode py--imenu-create-index-p)
+       (insert ,contents)
+       (python-mode)
+       (when ar-debug-p (switch-to-buffer (current-buffer))
+	     (font-lock-fontify-region (point-min) (point-max)))
+       ;; (message "ERT %s" (point))
+       ,@body)
+     ))
+
+(defmacro ar-test-with-shell-script-buffer (contents &rest body)
+  "Create temp buffer in `emacs-lisp-mode' inserting CONTENTS.
+BODY is code to be executed within the temp buffer.  Point is
+ at the end of buffer."
+  (declare (indent 1) (debug t))
+  `(with-temp-buffer
+     (let (hs-minor-mode)
+       (shell-script-mode)
+       (insert ,contents)
+       (when ar-debug-p
+	 (switch-to-buffer (current-buffer)))
+       (font-lock-fontify-region (point-min) (point-max))
+       ,@body)))
+
+(defmacro ar-test-with-shell-script-buffer-point-min (contents &rest body)
+  "Create temp buffer inserting CONTENTS.
+BODY is code to be executed within the temp buffer.  Point is
+ at the end of buffer."
+  (declare (indent 2) (debug t))
+  `(with-temp-buffer
+     (let (hs-minor-mode)
+       (insert ,contents)
+       (shell-script-mode)
+       (goto-char (point-min))
+       (when ar-debug-p
+	 (switch-to-buffer (current-buffer)))
+       (font-lock-fontify-region (point-min) (point-max))
+       ,@body)))
+
+(defmacro ar-test-with-scala-buffer-point-min (contents &rest body)
+  "Create temp buffer in `scala-mode' inserting CONTENTS.
+BODY is code to be executed within the temp buffer.  Point is
+ at the beginning of buffer."
+  (declare (indent 1) (debug t))
+  `(with-temp-buffer
+     ;; requires scala.el
+     ;; (and (featurep 'semantic) (unload-feature 'semantic))
+     ;; (and (featurep 'scala) (unload-feature 'scala))
+     (let (hs-minor-mode py--imenu-create-index-p)
+       (insert ,contents)
+       (scala-mode)
+       (goto-char (point-min))
+       ;; (message "(current-buffer): %s" (current-buffer))
+       (when ar-debug-p (switch-to-buffer (current-buffer))
+	     (font-lock-fontify-region (point-min) (point-max)))
+       ,@body)
+     (sit-for 0.1)))
+
+(defmacro ar-test-with-scala-buffer (contents &rest body)
+  "Create temp buffer in `scala-mode' inserting CONTENTS.
+BODY is code to be executed within the temp buffer.  Point is
+ at the end of buffer."
+  (declare (indent 1) (debug t))
+  `(with-temp-buffer
+     ;; (and (featurep 'scala) (unload-feature 'scala))
+     (let (hs-minor-mode py--imenu-create-index-p)
+       (insert ,contents)
+       (scala-mode)
+       (when ar-debug-p (switch-to-buffer (current-buffer))
+	     (font-lock-fontify-region (point-min) (point-max)))
+       ;; (message "ERT %s" (point))
+       ,@body)
+     (sit-for 0.1)))
 
 (provide 'ar-generics-setup-tests)
-;;; ar-generics-setup-tests.el ends here
+;; ar-generics-setup-tests.el ends here
